@@ -30,26 +30,24 @@ class EventInline(admin.TabularInline):
     extra = 1
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        object_id = request.resolver_match.kwargs.get('object_id')
-        if object_id:
-            try:
-                partit = Partit.objects.get(id=object_id)
-                # Només jugadors dels 2 equips del partit
-                if db_field.name == "jugador":
-                    jugadors_local = list(partit.local.jugador_set.values_list('id', flat=True))
-                    jugadors_visitant = list(partit.visitant.jugador_set.values_list('id', flat=True))
-                    kwargs["queryset"] = Jugador.objects.filter(
-                        id__in=jugadors_local + jugadors_visitant
-                    )
-                # Només els 2 equips del partit
-                if db_field.name == "equip":
-                    kwargs["queryset"] = Equip.objects.filter(
-                        id__in=[partit.local.id, partit.visitant.id]
-                    )
-            except Partit.DoesNotExist:
-                pass
+        # filtrem els jugadors i només deixem els que siguin d'algun dels 2 equips (local o visitant)
+        if db_field.name == "jugador":
+            partit_id = request.resolver_match.kwargs.get('object_id')
+            if partit_id:
+                partit = Partit.objects.get(id=partit_id)
+                # fem un queryset per cada equip
+                jugadors_locals = Jugador.objects.filter(equip=partit.local)
+                jugadors_visitants = Jugador.objects.filter(equip=partit.visitant)
+                # fusionem els 2 querysets amb l'operador | (= union en BD)
+                kwargs["queryset"] = jugadors_locals | jugadors_visitants
+        if db_field.name == "equip":
+            partit_id = request.resolver_match.kwargs.get('object_id')
+            if partit_id:
+                partit = Partit.objects.get(id=partit_id)
+                kwargs["queryset"] = Equip.objects.filter(
+                    id__in=[partit.local.id, partit.visitant.id]
+                )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
 
 class PartitAdmin(admin.ModelAdmin):
     # Cerca per nom d'equips o títol de lliga
