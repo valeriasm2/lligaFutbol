@@ -1,0 +1,24 @@
+{% extends 'lliga/base.html' %}
+{% block titol %}Partits{% endblock %}
+{% block content %}
+<h2>Partits — {{ lliga }}</h2>
+<a href="/" class="btn btn-secondary btn-sm mb-3">← Tornar</a>
+<table class="table table-striped table-hover">
+  <thead class="table-dark">
+    <tr><th>Data</th><th>Local</th><th>Resultat</th><th>Visitant</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for p in partits %}
+  <tr>
+    <td>{{ p.inici|date:"d/m/Y H:i"|default:"—" }}</td>
+    <td>{{ p.local }}</td>
+    <td class="text-center fw-bold">{{ p.resultat }}</td>
+    <td>{{ p.visitant }}</td>
+    <td><a href="{% url 'lliga:partit_detall' p.id %}" class="btn btn-outline-primary btn-sm">Detall</a></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="5">No hi ha partits.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

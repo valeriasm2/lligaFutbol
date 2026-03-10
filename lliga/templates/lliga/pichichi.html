@@ -1,0 +1,21 @@
+{% extends 'lliga/base.html' %}
+{% block titol %}Pichichi{% endblock %}
+{% block content %}
+<h2>⚽ Pichichi — {{ lliga }}</h2>
+<a href="/" class="btn btn-secondary btn-sm mb-3">← Tornar</a>
+<table class="table table-striped">
+  <thead class="table-dark">
+    <tr><th>#</th><th>Jugador</th><th>Equip</th><th>Gols</th></tr>
+  </thead>
+  <tbody>
+  {% for j in golejadors %}
+  <tr>
+    <td>{{ forloop.counter }}</td>
+    <td>{{ j.nom }} {{ j.cognom }}</td>
+    <td>{{ j.equip }}</td>
+    <td><span class="badge bg-danger fs-6">{{ j.gols }}</span></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
