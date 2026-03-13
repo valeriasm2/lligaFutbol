@@ -1,0 +1,12 @@
+{% extends 'lliga/base.html' %}
+{% block titol %}Menú lligues{% endblock %}
+{% block content %}
+<h2>Menú de lligues</h2>
+
+<form method="post" class="mt-3">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Veure classificació</button>
+</form>
+{% endblock %}
+

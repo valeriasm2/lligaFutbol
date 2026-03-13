@@ -1,4 +1,5 @@
-from django.shortcuts import render, get_object_or_404
+from django import forms
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Count, Q
 from .models import Lliga, Equip, Jugador, Partit, Event
 
@@ -6,6 +7,20 @@ from .models import Lliga, Equip, Jugador, Partit, Event
 def index(request):
     lligues = Lliga.objects.all()
     return render(request, 'lliga/index.html', {'lligues': lligues})
+
+
+class MenuForm(forms.Form):
+    lliga = forms.ModelChoiceField(queryset=Lliga.objects.all(), label="Tria una lliga")
+
+
+def menu(request):
+    form = MenuForm()
+    if request.method == "POST":
+        form = MenuForm(request.POST)
+        if form.is_valid():
+            lliga = form.cleaned_data.get("lliga")
+            return redirect('lliga:classificacio', lliga.id)
+    return render(request, "lliga/menu.html", {"form": form})
 
 
 def partits(request, lliga_id):
@@ -48,7 +63,14 @@ def classificacio(request, lliga_id):
             'gf': gf, 'gc': gc, 'dg': gf-gc, 'punts': punts,
         })
     taula.sort(key=lambda x: (-x['punts'], -x['dg'], -x['gf']))
-    return render(request, 'lliga/classificacio.html', {'lliga': lliga, 'taula': taula})
+    return render(
+        request,
+        'lliga/classificacio.html',
+        {
+            'lliga': lliga,
+            'classificacio': taula,
+        },
+    )
 
 
 def pichichi(request, lliga_id):
